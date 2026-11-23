@@ -1,0 +1,20 @@
+name: Condor safe installation check
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  install-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Install Python 3.12
+        run: uv python install 3.12
+      - name: Install Condor dependencies (no credentials)
+        run: uv sync --frozen --no-dev
+      - name: Verify Condor Python sources compile
+        run: uv run --no-sync python -m compileall -q condor agents handlers routines utils main.py
